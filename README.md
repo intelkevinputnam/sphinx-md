@@ -75,7 +75,7 @@ extension.
    sphinx_md_useGitHubURL = True
    baseBranch = "devel"
    commitSHA = getenv('GITHUB_SHA')
-   githubBaseURL = 'https://github.com/' + (getenv('GITHUB_REPOSITORY') or 'intel/pmem-csi') + '/'
+   githubBaseURL = 'https://github.com/' + (getenv('GITHUB_REPOSITORY') or '<your_group/your_project>') + '/'
    githubFileURL = githubBaseURL + "blob/"
    githubDirURL = githubBaseURL + "tree/"
    if commitSHA:
