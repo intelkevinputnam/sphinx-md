@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="sphinx-md-kevinputnam",
+    name="sphinx-md",
     version="0.0.2",
     author="Kevin Putnam",
     author_email="kevin.putnam@intel.com",
