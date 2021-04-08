@@ -94,6 +94,8 @@ def fixLocalMDAnchors(app, doctree, docname):
     githubDirURL = app.config.sphinx_md_githubDirURL
     for node in doctree.traverse(nodes.reference):
         uri = node.get('refuri')
+        if not uri:
+            continue
         filePath = normalizePath(docname,uri)
         if isfile(filePath):
         # Only do this if the file exists.

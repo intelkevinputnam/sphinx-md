@@ -2,7 +2,7 @@
 
 This extension fixes or improves how Sphinx handles links related to Markdown
 when it generates the HTML site. It assumes you are using the `recommonmark`
-extension.
+extension. It's a good idea to use `sphinx_markdown_tables` as well.
 
 **Contents**
 
