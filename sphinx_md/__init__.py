@@ -154,6 +154,7 @@ def setup(app):
     app.add_config_value('sphinx_md_useGitHubURL',False,'')
     app.add_config_value('sphinx_md_githubFileURL','','')
     app.add_config_value('sphinx_md_githubDirURL','','')
+    app.add_config_value('sphinx_md_processRaw',False,'')
     app.add_config_value('sphinx_md_tableIDs',{},'')
     app.connect('doctree-read',html2Docutils)
     app.connect('doctree-resolved',fixLocalMDAnchors)

@@ -3,27 +3,40 @@ from docutils import nodes
 import os.path
 
 known_start_tags = ['p','img','table']
+hidden_tag = 'hidden'
 
 def html2Docutils(app, doctree):
     #find all raw nodes
+    if not app.env.config.sphinx_md_processRaw:
+        return
     filepath = doctree['source']
+    htmlCounter = 0
     for node in doctree.traverse(nodes.raw):
         soup = BeautifulSoup(node.astext(),features="html.parser")
-        if soup.find().name in known_start_tags:
-            #send it to converter
-            div = nodes.container()
-            convertHTML(soup, div, app, filepath)
-            parent = node.parent
-            parent.replace(node,div)
-            #replace raw node with output of converter
-            #child = nodes.Text("poof")
-            #node[0]=child
+        if soup.find():
+            if soup.find().name in known_start_tags:
+                #send it to converter
+                div = nodes.container()
+                div['id']='html-content-' + str(htmlCounter)
+                htmlCounter += 1
+                convertHTML(soup, div, app, filepath)
+                parent = node.parent
+                parent.replace(node,div.children)
+                #replace raw node with output of converter
+                #child = nodes.Text("poof")
+                #node[0]=child
+            elif soup.find().name == hidden_tag:
+                hidden_comment = nodes.comment()
+                comment_text = nodes.Text("hidden")
+                hidden_comment.append(comment_text)
+                parent = node.parent
+                parent.replace(node,hidden_comment)
 
 def convertHTML(soup, parent, app, filepath):
     if hasattr(soup,"children"):
         for child in soup.children:
             node = None
-            if child.name is not None:
+            if hasattr(child,"name") and child.name is not None:
                 if child.name == "table":
                     if filepath not in app.env.config.sphinx_md_tableIDs:
                         app.env.config.sphinx_md_tableIDs['filepath']=0
@@ -51,19 +64,24 @@ def convertHTML(soup, parent, app, filepath):
                     if "alt" in child.attrs:
                         node["alt"]=child.attrs['alt']
                     if "src" in child.attrs:
-                        basepath = app.env.srcdir + "/"
-                        docfilename = os.path.splitext(os.path.relpath(filepath,basepath))[0]
-                        relpath = os.path.dirname(os.path.relpath(filepath,basepath))
-                        imgPath = os.path.join(relpath,child.attrs['src'])
-                        node["uri"]= imgPath
-                        print("Checking for file.")
-                        if os.path.isfile(imgPath):
-                            if imgPath not in app.env.images:
-                                imageFileName = os.path.basename(imgPath)
-                                imageTuple = ({docfilename},imageFileName)
-                                app.env.images[imgPath]=imageTuple
+                        if "https" in child.attrs['src']:
+                            node["uri"]=child.attrs['src']
+                        else:
+                            basepath = app.env.srcdir + "/"
+                            docfilename = os.path.splitext(os.path.relpath(filepath,basepath))[0]
+                            relpath = os.path.dirname(os.path.relpath(filepath,basepath))
+                            imgPath = os.path.join(relpath,child.attrs['src'])
+                            node["uri"]= imgPath
+                            if os.path.isfile(imgPath):
+                                if imgPath not in app.env.images:
+                                    imageFileName = os.path.basename(imgPath)
+                                    imageTuple = ({docfilename},imageFileName)
+                                    app.env.images[imgPath]=imageTuple
                     if "width" in child.attrs:
-                        node["width"]=child.attrs['width']
+                        suffix = ''
+                        if child.attrs['width'].isnumeric():
+                            suffix = 'px'
+                        node["width"]=child.attrs['width'] + suffix
                     if "height" in child.attrs:
                         node["height"]=child.attrs['height']
                     node["candidates"]="{'*': '" + imgPath + "'}"
@@ -78,22 +96,27 @@ def convertHTML(soup, parent, app, filepath):
                     node = nodes.row()
                     parent += node
                 elif child.name == "th" or child.name == "td":
-                    node = nodes.entry()
+                    eNode = nodes.entry()
+                    node = nodes.paragraph()
+                    eNode += node
+                    parent += eNode
+                elif child.name == "sup":
+                    node = nodes.superscript()
+                    parent += node
+                elif child.name == "a":
+                    node = nodes.reference()
+                    node["refuri"] = child.attrs['href']
+                    parent += node
+                elif child.name == "code":
+                    node = nodes.literal()
                     parent += node
             else:
-                if isinstance(parent, nodes.entry) or isinstance(parent, nodes.paragraph) or isinstance(parent, nodes.image):
+                if isinstance(parent,nodes.Node):
+                #if isinstance(parent, nodes.entry) or isinstance(parent, nodes.paragraph) or isinstance(parent, nodes.image) or isinstance(parent, nodes.superscript) or isinstance(parent, nodes.reference) or isinstance(parent, nodes.literal):
                     node = nodes.Text(child)
                     parent += node
             if node:
                 convertHTML(child,node,app,filepath)
-    # soup = removeHTMLAttributes(soup,"table")
-    # soup = removeHTMLAttributes(soup,"p")
-    # soup = replaceTag(soup,"tr","row")
-    # soup = replaceTag(soup,"th","entry")
-    # soup = replaceTag(soup,"td","entry")
-    # soup = addTGroup(soup)
-    # soup = fixImages(soup)
-    # ditaXML = str(soup)
 
 def removeHTMLAttributes(soup,tagName):
     tags = soup.find_all(tagName)
