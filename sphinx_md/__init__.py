@@ -3,6 +3,7 @@ Sphinx Markdown link fixer
 """
 
 import sphinx
+from .convert_html import html2Docutils
 
 from docutils import nodes
 from os.path import isdir, isfile, join, basename, dirname
@@ -153,6 +154,9 @@ def setup(app):
     app.add_config_value('sphinx_md_useGitHubURL',False,'')
     app.add_config_value('sphinx_md_githubFileURL','','')
     app.add_config_value('sphinx_md_githubDirURL','','')
+    app.add_config_value('sphinx_md_processRaw',False,'')
+    app.add_config_value('sphinx_md_tableIDs',{},'')
+    app.connect('doctree-read',html2Docutils)
     app.connect('doctree-resolved',fixLocalMDAnchors)
     app.connect('missing-reference',fixRSTLinkInMD)
 
