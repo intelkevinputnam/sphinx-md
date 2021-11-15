@@ -57,7 +57,7 @@ def fixRSTLinkInMD(app, env, node, contnode):
     #
     # Example: [Application examples](examples/readme.rst)
     #
-        contnode['refuri'] = contnode['refuri'].replace('.rst','.html')
+        contnode['refuri'] = contnode['refuri'].replace('.rst',app.builder.out_suffix)
         contnode['internal'] = "True"
         return contnode
     else:
@@ -116,7 +116,7 @@ def fixLocalMDAnchors(app, doctree, docname):
             # Example: `Google Cloud Engine <gce.md>`__
             #          [configuration options](autotest.md#configuration-options)
             #
-                node['refuri'] = node['refuri'].replace('.md','.html')
+                node['refuri'] = node['refuri'].replace('.md',app.builder.out_suffix)
             else:
             # Handle the case where markdown is referencing local files in the repo
             #
@@ -141,7 +141,7 @@ def fixLocalMDAnchors(app, doctree, docname):
                         docDirDepth = len(docname.split("/")) - 1
                         newURI = "../"*docDirDepth + uri
                     if not isdir(newFileDir):
-                        makedirs(newFileDir)
+                        makedirs(newFileDir,exist_ok=True)
                     copyfile(filePath,newFilePath)
                     node['refuri'] = newURI
         elif "#" not in uri: # ignore anchors
