@@ -5,10 +5,10 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="sphinx-md",
-    version="0.0.3",
+    version="0.0.4",
     author="Kevin Putnam",
     author_email="kevin.putnam@intel.com",
-    description="Sphinx extension to use with Recommonmark to fix links to rst from md, links to md from rst, and links to embedded files and dirs.",
+    description="Sphinx extension to use with Recommonmark or MystParser to fix links to rst from md, links to md from rst, and links to embedded files and dirs.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/intelkevinputnam/sphinx-md",
