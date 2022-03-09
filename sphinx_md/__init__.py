@@ -9,6 +9,9 @@ from docutils import nodes
 from os.path import isdir, isfile, join, basename, dirname
 from os import makedirs
 from shutil import copyfile
+from sphinx.util import logging
+
+logger = logging.getLogger(__name__)
 
 ##############################################################################
 #
@@ -149,6 +152,8 @@ def fixLocalMDAnchors(app, doctree, docname):
             if isdir(filePath):
                 newURI = githubDirURL + filePath
                 node['refuri']=newURI
+            if ".md" in uri:
+                logger.warning('Markdown file does not exist: ' + uri, location=node)
 
 def setup(app):
     app.add_config_value('sphinx_md_useGitHubURL',False,'')
